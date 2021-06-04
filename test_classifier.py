@@ -24,4 +24,4 @@ def evaluate_mode(model_path,input_dir,batch_size=64):
 
 
 if __name__ == '__main__':
-    evaluate_mode(model_path=join('.','resources','classifier_mode','checkpoint.h5'),input_dir=('.','resources','data'))
+    evaluate_mode(model_path=join('.','resources','classifier_model','checkpoint.h5'),input_dir=('.','resources','data'))
