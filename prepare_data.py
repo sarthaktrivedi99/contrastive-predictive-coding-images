@@ -13,7 +13,7 @@ from tqdm import tqdm
 import skimage.color
 import scipy.ndimage
 import skimage.transform
-from scipy.misc import imsave
+from imageio import imwrite as imsave
 
 
 def create_mnist_dataset_npy(input_dir, output_dir):
