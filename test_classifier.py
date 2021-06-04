@@ -9,7 +9,7 @@ def load_model(path):
     model = keras.models.load_model(path,custom_objects=get_custom_objects_cpc())
     return model
 
-def evaluate_mode(model_path,input_dir,batch_size=64):
+def evaluate_model(model_path,input_dir,batch_size=64):
     model = load_model(model_path)
     test_data = NCEGenerator(
         x_path=join(input_dir, 'test_x.npy'),
@@ -24,4 +24,4 @@ def evaluate_mode(model_path,input_dir,batch_size=64):
 
 
 if __name__ == '__main__':
-    evaluate_mode(model_path=join('.','resources','classifier_model','checkpoint.h5'),input_dir=('.','resources','data'))
+    evaluate_model(model_path=join('.','resources','classifier_model','checkpoint.h5'),input_dir=join('.','resources','data'))
