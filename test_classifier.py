@@ -11,7 +11,7 @@ def load_model(path):
 
 
 
-def evaluate_mode(model_path,input_dir,batch_size=64):
+def evaluate_model(model_path,input_dir,batch_size=64):
     model = load_model(model_path)
     test_data = NCEGenerator(
         x_path=join(input_dir, 'test_x.npy'),
@@ -22,8 +22,9 @@ def evaluate_mode(model_path,input_dir,batch_size=64):
         augment_image_fn=None,
         augment_crop_fn=None
     )
-
+    model.summary()
+    model.evaluate(test_data,steps=len(test_data))
 
 
 if __name__ == '__main__':
-    evaluate_mode(model_path=join('.','resources','classifier_mode','checkpoint.h5'),input_dir=('.','resources','data'))
+    evaluate_model(model_path=join('.','resources','classifier_mode','checkpoint.h5'),input_dir=join('.','resources','data'))
