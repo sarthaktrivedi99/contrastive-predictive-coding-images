@@ -9,7 +9,7 @@ from skimage.util import view_as_windows
 class NCEGenerator(object):
 
     def __init__(self, x_path, y_path, batch_size, n_classes, n_negatives, augment_image_fn, augment_crop_fn,
-                 label_dim_mul=None, neg_same_ratio=0.75):
+                 label_dim_mul=None, neg_same_ratio=0.75,random_sample=True):
 
         """
         Noise-contrastive-estimation sample generator. It performs several functions:
@@ -43,6 +43,7 @@ class NCEGenerator(object):
         self.n_negatives = n_negatives
         self.label_dim_mul = label_dim_mul
         self.neg_same_ratio = neg_same_ratio
+        self.random_sample = random_sample
 
         # Image generator
         self.image_generator = ImageGenerator(
@@ -79,8 +80,8 @@ class NCEGenerator(object):
                 crops: [batch, crop_row, crop_col, x, y, ch]
                 labels: [batch, n_classes]
         """
-
-        np.random.seed()  # crucial for multiprocessing (otherwise, all processes will be initialized with same
+        if self.random_sample:
+            np.random.seed()  # crucial for multiprocessing (otherwise, all processes will be initialized with same
                           # seed, thus same sequence of patches)
 
         # Get data
@@ -121,7 +122,7 @@ class NCEGenerator(object):
 
 class ImageGenerator(object):
 
-    def __init__(self, x_path, y_path, batch_size, n_classes, augment_fn=None):
+    def __init__(self, x_path, y_path, batch_size, n_classes, augment_fn=None,random_sample=True):
         """
         Iterator that yields batches of images and labels from disk sampled randomly.
 
@@ -146,6 +147,9 @@ class ImageGenerator(object):
         self.n_samples = len(self.y)
         self.n_batches = self.n_samples // batch_size
 
+        self.random_sample = random_sample
+        self.idx = 0
+
     def __iter__(self):
         return self
 
@@ -167,10 +171,17 @@ class ImageGenerator(object):
         if self.x is None:
             self.x = np.load(self.x_path)
 
-        # Sample
-        idx = np.random.choice(len(self.y), self.batch_size, replace=False)
-        x = self.x[idx, ...]
-        y = self.y[idx, ...]
+        if self.random_sample:
+            # Random Sample
+            idx = np.random.choice(len(self.y), self.batch_size, replace=False)
+            x = self.x[idx, ...]
+            y = self.y[idx, ...]
+        else:
+            if self.idx==len(self.x):
+                self.idx=0
+            x = self.x[self.idx, ...]
+            y = self.y[self.idx, ...]
+            self.idx+=1
 
         # Augment
         if self.augment_fn is not None:

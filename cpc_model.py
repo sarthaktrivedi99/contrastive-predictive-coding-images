@@ -510,7 +510,8 @@ if __name__ == '__main__':
         code_size=128,
         learning_rate=1e-3,
         ks=5,
-        n_neg=19,
-        pred_dir=2
+        n_neg=49,
+        pred_dir=2,
+
     )
 
