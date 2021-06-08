@@ -21,7 +21,7 @@ def evaluate_model(model_path,input_dir,batch_size=64):
         augment_crop_fn=None
     )
     model.summary()
-    model.evaluate(test_data,steps=len(load_model))
+    model.evaluate(test_data,steps=len(test_data))
 
 
 if __name__ == '__main__':
