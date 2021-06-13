@@ -11,7 +11,7 @@ from prepare_data import augment_images_mnist, augment_crops_mnist
 
 
 def train_cpc(input_dir, epochs, batch_size, output_dir, code_size, lr=1e-3, train_step_multiplier=1.0,
-              val_step_multiplier=1.0):
+              val_step_multiplier=1.0,n_negatives=19,):
     """
     This function initializes and trains an instance of the contrastive-predictive-coding model for images.
 
@@ -36,7 +36,7 @@ def train_cpc(input_dir, epochs, batch_size, output_dir, code_size, lr=1e-3, tra
         y_path=join(input_dir, 'training_y.npy'),
         batch_size=batch_size,
         n_classes=10,
-        n_negatives=19,
+        n_negatives=n_negatives,
         augment_image_fn=augment_images_mnist,
         augment_crop_fn=augment_crops_mnist,
         label_dim_mul=(15 * 7) * 2,
@@ -47,7 +47,7 @@ def train_cpc(input_dir, epochs, batch_size, output_dir, code_size, lr=1e-3, tra
         y_path=join(input_dir, 'validation_y.npy'),
         batch_size=batch_size,
         n_classes=10,
-        n_negatives=19,
+        n_negatives=n_negatives,
         augment_image_fn=augment_images_mnist,
         augment_crop_fn=augment_crops_mnist,
         label_dim_mul=(15 * 7) * 2,
@@ -61,7 +61,7 @@ def train_cpc(input_dir, epochs, batch_size, output_dir, code_size, lr=1e-3, tra
         code_size=code_size,
         learning_rate=lr,
         ks=5,
-        n_neg=19,
+        n_neg=n_negatives,
         pred_dir=2
     )
 
@@ -104,5 +104,6 @@ if __name__ == '__main__':
         code_size=32,
         lr=1e-3,
         train_step_multiplier=0.1,
-        val_step_multiplier=0.05
+        val_step_multiplier=0.05,
+        n_negatives=24
     )
