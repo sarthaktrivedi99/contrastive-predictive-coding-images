@@ -11,7 +11,7 @@ from prepare_data import augment_images_mnist, augment_crops_mnist
 
 
 def train_cpc(input_dir, epochs, batch_size, output_dir, code_size, lr=1e-3, train_step_multiplier=1.0,
-              val_step_multiplier=1.0,n_negatives=19,):
+              val_step_multiplier=1.0,n_negatives=19):
     """
     This function initializes and trains an instance of the contrastive-predictive-coding model for images.
 
@@ -71,7 +71,7 @@ def train_cpc(input_dir, epochs, batch_size, output_dir, code_size, lr=1e-3, tra
 
     # Callbacks
     callbacks = [
-        keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=1/3, patience=2, min_lr=1e-5),
+        # keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=1/3, patience=2, min_lr=1e-5),
         keras.callbacks.CSVLogger(filename=join(output_dir, 'history.csv'), separator=',', append=True),
     ]
 
@@ -98,12 +98,12 @@ if __name__ == '__main__':
 
     train_cpc(
         input_dir=join('.', 'resources', 'data'),
-        epochs=5,
+        epochs=4,
         batch_size=8,
         output_dir=join('.', 'resources', 'cpc_model'),
-        code_size=32,
+        code_size=128,
         lr=1e-3,
         train_step_multiplier=0.1,
         val_step_multiplier=0.05,
-        n_negatives=24
+        n_negatives=39
     )

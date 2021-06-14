@@ -91,7 +91,7 @@ if __name__ == '__main__':
         epochs=10,
         batch_size=32,
         output_dir=join('.', 'resources', 'classifier_model'),
-        code_size=32,
+        code_size=128,
         lr=1e-3,
         train_step_multiplier=1.0,
         val_step_multiplier=1.0
