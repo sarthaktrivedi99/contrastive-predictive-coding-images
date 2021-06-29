@@ -8,14 +8,14 @@ from tqdm import tqdm
 from joblib import dump,load
 import matplotlib.pyplot as plt
 
-def main(encoder_path,input_dir,n_crops,crop_shape):
+def main(encoder_path,input_dir,n_crops,crop_shape,code_size):
 
     encoder_model = keras.models.load_model(encoder_path, custom_objects=get_custom_objects_cpc())
 
     x_input = keras.layers.Input((n_crops, n_crops) + crop_shape)
     x = keras.layers.Reshape((n_crops * n_crops,) + crop_shape)(x_input)
     x = keras.layers.TimeDistributed(encoder_model)(x)
-    x = keras.layers.Reshape((n_crops, n_crops, 32))(x)
+    x = keras.layers.Reshape((n_crops, n_crops, code_size))(x)
     x = keras.layers.GlobalAveragePooling2D()(x)
 
     # Tried to change the input to the input size of each image
@@ -54,4 +54,4 @@ def main(encoder_path,input_dir,n_crops,crop_shape):
     plt.ylabel('Second Component')
     plt.savefig(join(input_dir,'tsne.png'))
 if __name__ == '__main__':
-    main(encoder_path=join('.', 'resources', 'cpc_model', 'encoder_model.h5'),input_dir=join('.', 'resources', 'data'),n_crops=7,crop_shape=(16, 16, 3))
+    main(encoder_path=join('.', 'resources', 'cpc_model', 'encoder_model.h5'),input_dir=join('.', 'resources', 'data'),n_crops=7,crop_shape=(16, 16, 3),code_size=128)
