@@ -99,11 +99,11 @@ if __name__ == '__main__':
     train_cpc(
         input_dir=join('.', 'resources', 'data'),
         epochs=4,
-        batch_size=8,
+        batch_size=4,
         output_dir=join('.', 'resources', 'cpc_model'),
-        code_size=128,
+        code_size=512,
         lr=1e-3,
         train_step_multiplier=0.1,
         val_step_multiplier=0.05,
-        n_negatives=39
+        n_negatives=44
     )
