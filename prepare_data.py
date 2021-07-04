@@ -11,7 +11,6 @@ import scipy.ndimage
 from PIL import Image
 from tqdm import tqdm
 import skimage.color
-import scipy.ndimage
 import skimage.transform
 from imageio import imwrite as imsave
 
@@ -33,6 +32,7 @@ def create_mnist_dataset_npy(input_dir, output_dir):
         with gzip.open(filename, 'rb') as f:
             data = np.frombuffer(f.read(), np.uint8, offset=16)
         data = data.reshape(-1, 28, 28)
+
         return data / np.float32(256)
 
     def load_mnist_labels(filename):
@@ -118,7 +118,26 @@ def create_mnist_dataset_npy(input_dir, output_dir):
     save_images_to_disk(x_val, y_val, 16, join(output_dir, 'validation_images'))
     save_images_to_disk(x_test, y_test, 16, join(output_dir, 'test_images'))
 
-
+def augment_mnist(images):
+    def add_gaussian_noise(image, mean=0, sigma=2.5):
+        """Add Gaussian noise to an image of type np.uint8."""
+        gaussian_noise = np.random.normal(mean, sigma, image.shape)
+        gaussian_noise = gaussian_noise.reshape(image.shape)
+        noisy_image = image + gaussian_noise
+        noisy_image = np.clip(noisy_image, 0, 255)
+        noisy_image = noisy_image.astype(np.uint8)
+        return noisy_image
+    aug_choices = np.random.choice([True,False],size=4)
+    for i in range(images.shape[0]):
+        if aug_choices[0]:
+            images[i, ...] = add_gaussian_noise(images[i,...])
+        if aug_choices[1]:
+            images[i, ...] = scipy.ndimage.gaussian_filter(images[i,...],sigma=3)
+        if aug_choices[2]:
+            images[i,...] = scipy.ndimage.sobel(images[i,...])
+        if aug_choices[3]:
+            images[i,...] = np.rot90(images[i,...],k=np.random.choice(np.arange(4)))
+    return images
 def augment_crops_mnist(crops):
     """ Performs cropping and HSV/HUE color augmentation in image crops. """
 
