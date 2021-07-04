@@ -40,8 +40,9 @@ def train_classifier(input_dir, encoder_path, epochs, batch_size, output_dir, co
         batch_size=batch_size,
         n_classes=10,
         n_negatives=0,
-        augment_image_fn=augment_images_mnist,
-        augment_crop_fn=None
+        #augment_image_fn=augment_images_mnist,
+        augment_image_fn=None,
+	augment_crop_fn=None
     )
     validation_data = NCEGenerator(
         x_path=join(input_dir, 'validation_x.npy'),
@@ -88,7 +89,8 @@ if __name__ == '__main__':
     train_classifier(
         input_dir=join('.', 'resources', 'data'),
         encoder_path=join('.', 'resources', 'cpc_model', 'encoder_model.h5'),
-        epochs=10,
+        #encoder_path=None,
+	epochs=10,
         batch_size=32,
         output_dir=join('.', 'resources', 'classifier_model'),
         code_size=128,
