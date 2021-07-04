@@ -119,7 +119,7 @@ def create_mnist_dataset_npy(input_dir, output_dir):
     save_images_to_disk(x_test, y_test, 16, join(output_dir, 'test_images'))
 
 def augment_mnist(images):
-    def add_gaussian_noise(image, mean=0, sigma=2.5):
+    def add_gaussian_noise(image, mean=0, sigma=1):
         """Add Gaussian noise to an image of type np.uint8."""
         gaussian_noise = np.random.normal(mean, sigma, image.shape)
         gaussian_noise = gaussian_noise.reshape(image.shape)
@@ -129,17 +129,26 @@ def augment_mnist(images):
         return noisy_image
     aug_choices = np.random.choice([True,False],size=4)
     for i in range(images.shape[0]):
-        if aug_choices[0]:
-            images[i, ...] = add_gaussian_noise(images[i,...])
-        if aug_choices[1]:
-            images[i, ...] = scipy.ndimage.gaussian_filter(images[i,...],sigma=3)
-        if aug_choices[2]:
-            images[i,...] = scipy.ndimage.sobel(images[i,...])
+        # if aug_choices[0]:
+        #     images[i, ...] = add_gaussian_noise(images[i,...])
+        # if aug_choices[1]:
+        #    images[i, ...] = scipy.ndimage.gaussian_filter(images[i,...],sigma=1)
+        # if aug_choices[2]:
+            # images[i,...] = scipy.ndimage.sobel(images[i,...])*255
         if aug_choices[3]:
             images[i,...] = np.rot90(images[i,...],k=np.random.choice(np.arange(4)))
     return images
+
 def augment_crops_mnist(crops):
     """ Performs cropping and HSV/HUE color augmentation in image crops. """
+    def add_gaussian_noise(image, mean=0, sigma=0.01):
+        """Add Gaussian noise to an image of type np.uint8."""
+        gaussian_noise = np.random.normal(mean, sigma, image.shape)
+        gaussian_noise = gaussian_noise.reshape(image.shape)
+        noisy_image = image + gaussian_noise
+        noisy_image = np.clip(noisy_image,0,1)
+        # noisy_image = noisy_image.astype(np.uint8)
+        return noisy_image
 
     def change_hsv(patch, h, s, v):
 
@@ -162,23 +171,30 @@ def augment_crops_mnist(crops):
 
     # Pad
     crops_shape = crops.shape
-    n = crops_shape[-3]
-    p = crops_shape[2] // 8  # paper is //16
+    # n = crops_shape[-3]
+    # p = crops_shape[2] // 8  # paper is //16
     crops = crops.reshape((-1,) + crops_shape[-3:])
-    crops_pad = np.pad(crops, ((0, 0), (p, p), (p, p), (0, 0)), 'reflect')
+    # crops_pad = np.pad(crops, ((0, 0), (p, p), (p, p), (0, 0)), 'reflect')
 
-    # Crop
-    for i in range(crops_pad.shape[0]):
-        crop = np.copy(crops_pad[i, ...])
-        x = np.random.randint(0, p * 2 + 1)
-        y = np.random.randint(0, p * 2 + 1)
-        crop = crop[x:x + n, y:y + n, :]
-
+    #Change to HSV
+    for i in range(crops.shape[0]):
+        crop = crops[i, ...]
         # Change color hue
-        h = np.random.uniform(-1, 1)
-        s = np.random.uniform(-0.5, 0.5)
-        v = np.random.uniform(-0.5, 0.5)
-        crop = change_hsv(crop * 0.5 + 0.5, h, s, v) * 2 - 1
+        h = np.random.uniform(0, 1)
+        s = np.random.uniform(0, 0.5)
+        v = np.random.uniform(0, 0.5)
+        if np.random.choice([True,False]):
+            crops[i,...] = change_hsv(crops[i,...], h, s, v)
+            continue
+        aug_choices = np.random.choice([True, False], size=4)
+        if aug_choices[0]:
+            crop = add_gaussian_noise(crop)
+        if aug_choices[1]:
+            crop = scipy.ndimage.gaussian_filter(crop,sigma=0.01)
+        # # if aug_choices[2]:
+        # #     crop = scipy.ndimage.sobel(crop)
+        # if aug_choices[3]:
+        #     crop = np.rot90(crop, k=np.random.choice(np.arange(4)))
 
         crops[i, ...] = crop
 

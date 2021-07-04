@@ -7,7 +7,7 @@ import keras
 from cpc_model import network_encoder, get_custom_objects_cpc
 
 
-def network_classifier(encoder_path, crop_shape, n_crops, code_size, lr, n_classes):
+def network_classifier(encoder_path, crop_shape, n_crops, code_size, lr, n_classes,train_encoder=False):
     """
     Builds a Keras model that make predictions of image crops using a pretrained CPC encoder to extract features.
 
@@ -23,9 +23,14 @@ def network_classifier(encoder_path, crop_shape, n_crops, code_size, lr, n_class
     if encoder_path is not None:
         print('Reading encoder from disk and freezing weights.', flush=True)
         encoder_model = keras.models.load_model(encoder_path, custom_objects=get_custom_objects_cpc())
-        encoder_model.trainable = False
-        for l in encoder_model.layers:
-            l.trainable = False
+        if not train_encoder:
+            encoder_model.trainable = False
+            for l in encoder_model.layers:
+                l.trainable = False
+        else:
+            encoder_model.trainable = True
+            for l in encoder_model.layers:
+                l.trainable = True
     else:
         encoder_input = keras.layers.Input(crop_shape)
         encoder_output = network_encoder(encoder_input, code_size)
@@ -47,6 +52,7 @@ def network_classifier(encoder_path, crop_shape, n_crops, code_size, lr, n_class
     # x = keras.layers.LeakyReLU()(x)
 
     x = keras.layers.GlobalAveragePooling2D()(x)
+    x = keras.layers.LayerNormalization()(x)
     x = keras.layers.Dense(units=code_size, activation='linear')(x)
     x = keras.layers.LeakyReLU()(x)
     x = keras.layers.Dense(units=n_classes, activation='softmax')(x)

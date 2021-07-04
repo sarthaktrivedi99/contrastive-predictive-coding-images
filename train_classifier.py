@@ -12,7 +12,7 @@ from prepare_data import augment_images_mnist
 
 
 def train_classifier(input_dir, encoder_path, epochs, batch_size, output_dir, code_size,
-                     lr=1e-3, train_step_multiplier=1.0, val_step_multiplier=1.0):
+                     lr=1e-3, train_step_multiplier=1.0, val_step_multiplier=1.0,train_encoder=False):
 
     """
     This function initializes and trains a digit classifier using a pretrained CPC model as feature extractor.
@@ -40,9 +40,8 @@ def train_classifier(input_dir, encoder_path, epochs, batch_size, output_dir, co
         batch_size=batch_size,
         n_classes=10,
         n_negatives=0,
-        #augment_image_fn=augment_images_mnist,
         augment_image_fn=None,
-	augment_crop_fn=None
+        augment_crop_fn=None
     )
     validation_data = NCEGenerator(
         x_path=join(input_dir, 'validation_x.npy'),
@@ -61,14 +60,15 @@ def train_classifier(input_dir, encoder_path, epochs, batch_size, output_dir, co
         n_crops=7,
         code_size=code_size,
         lr=lr,
-        n_classes=10
+        n_classes=10,
+	train_encoder=train_encoder
     )
 
     # Callbacks
     callbacks = [
         keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=1/3, patience=2, min_lr=1e-5),
         keras.callbacks.CSVLogger(filename=join(output_dir, 'history.csv'), separator=',', append=True),
-        keras.callbacks.ModelCheckpoint(filepath=join(output_dir, 'checkpoint.h5'), monitor='val_loss', save_best_only=True, mode='min'),
+        keras.callbacks.ModelCheckpoint(filepath=join(output_dir, 'checkpoint.tf'), monitor='val_loss', save_best_only=True, mode='min'),
         keras.callbacks.EarlyStopping(monitor='val_loss', patience=4, mode='min')
     ]
 
@@ -82,6 +82,7 @@ def train_classifier(input_dir, encoder_path, epochs, batch_size, output_dir, co
         verbose=1,
         callbacks=callbacks
     )
+    model.save(join(output_dir, 'classifier_model.tf'))
 
 
 if __name__ == '__main__':
@@ -89,12 +90,12 @@ if __name__ == '__main__':
     train_classifier(
         input_dir=join('.', 'resources', 'data'),
         encoder_path=join('.', 'resources', 'cpc_model', 'encoder_model.h5'),
-        #encoder_path=None,
-	epochs=10,
+        epochs=10,
         batch_size=32,
         output_dir=join('.', 'resources', 'classifier_model'),
         code_size=128,
         lr=1e-3,
-        train_step_multiplier=1.0,
-        val_step_multiplier=1.0
+        train_step_multiplier=0.05,
+        val_step_multiplier=1.0,
+	train_encoder=True,
     )

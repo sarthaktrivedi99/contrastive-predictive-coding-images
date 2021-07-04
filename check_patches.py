@@ -11,8 +11,8 @@ def main(input_dir,n_crops):
         batch_size=1,
         n_classes=10,
         n_negatives=0,
-        augment_image_fn=augment_mnist,
-        augment_crop_fn=None,
+        augment_image_fn=None,
+        augment_crop_fn=augment_crops_mnist,
         random_sample=False
     )
     x,_ = next(training_data)

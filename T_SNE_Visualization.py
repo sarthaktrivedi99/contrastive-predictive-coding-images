@@ -4,8 +4,6 @@ import keras
 import numpy as np
 from os.path import join
 from data_generator import NCEGenerator
-from tqdm import tqdm
-from joblib import dump,load
 import matplotlib.pyplot as plt
 
 def main(encoder_path,input_dir,n_crops,crop_shape,code_size):
@@ -41,11 +39,11 @@ def main(encoder_path,input_dir,n_crops,crop_shape,code_size):
         random_sample=False
     )
 
-    enc = encoder_model.predict(training_data,steps=len(training_data),use_multiprocessing=True)
+    enc = encoder_model.predict(training_data,steps=1,use_multiprocessing=True)
     label = np.load(join(input_dir, 'test_y.npy'))
-
     tsne_model = TSNE(n_components=2)
     enc_tsne = tsne_model.fit_transform(enc)
+
     for i in set(label[:300]):
         plt.scatter(x=enc_tsne[:300,0][np.where(label[:300]==i)],y=enc_tsne[:300,1][np.where(label[:300]==i)],label=str(i))
     plt.legend(loc='best')
